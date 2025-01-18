@@ -1,3 +1,23 @@
+/**
+ * Middleware: permissionMiddleware
+ *
+ * This middleware is responsible for verifying user permissions and access control.
+ * It performs the following tasks:
+ *
+ * 1. Extracts the authentication token from cookies.
+ * 2. Validates and decodes the JWT token to extract the user's information.
+ * 3. Fetches the user's details from the database based on the decoded token.
+ * 4. Checks if the user has the appropriate permissions:
+ *    - Allows access if the user is an ADMIN.
+ *    - Allows access if the user is accessing their own resource (based on the `id` in the route parameters).
+ * 5. Attaches the user object to the request object for use in subsequent middleware or route handlers.
+ * 6. Handles errors such as missing tokens, invalid tokens, or unauthorized access.
+ *
+ * Usage:
+ * Attach this middleware to any route that requires user authentication and role-based access control.
+ *
+ */
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { errorResponse } from "../utils/response";
