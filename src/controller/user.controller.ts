@@ -1,20 +1,20 @@
+import { ZodError } from "zod";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import * as userService from "../services/user.service";
+import { getHashedPassword, validatePassword } from "../utils/password";
+import { frontendUrl, jwtSecret, nodeEnv } from "../config";
+import { sendResetPasswordLink } from "../utils/mailer";
 import {
   errorResponse,
   successResponse,
   zodErrorResponse,
 } from "../utils/response";
-import { getHashedPassword, validatePassword } from "../utils/password";
-import { frontendUrl, jwtSecret, nodeEnv } from "../config";
-import { sendResetPasswordLink } from "../utils/mailer";
 import {
   registerSchema,
   loginSchema,
   userUpdateSchema,
 } from "../schema/user.schema";
-import { ZodError } from "zod";
 
 export const register = async (
   req: Request,
