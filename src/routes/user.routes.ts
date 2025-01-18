@@ -13,6 +13,7 @@ import {
   verifyUser,
 } from "../controller/user.controller";
 import { authMiddleware } from "../middleware.ts/auth.middleware";
+import { permissionMiddleware } from "../middleware.ts/permission.middleware";
 
 const router = express.Router();
 
@@ -24,8 +25,8 @@ router.get("/me", authMiddleware, getMe);
 router.post("/set-new-password", setNewPassword);
 router.post("/verify", verifyUser);
 router.get("/", authMiddleware, getUsers);
-router.get("/:id", authMiddleware, getUserById);
-router.put("/:id", authMiddleware, updateUser);
-router.delete("/:id", authMiddleware, deleteUser);
+router.get("/:id", [authMiddleware, permissionMiddleware], getUserById);
+router.put("/:id", [authMiddleware, permissionMiddleware], updateUser);
+router.delete("/:id", [authMiddleware, permissionMiddleware], deleteUser);
 
 export default router;

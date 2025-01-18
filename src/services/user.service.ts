@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import prisma from "../db/prisma";
 import { UserRegister, UserUpdate } from "../types/user";
 import { otpGenerator } from "../utils/keys";
+
 export const register = async (data: UserRegister) => {
   const hashedPassword = await bcrypt.hash(data.password, 10);
   const user = await prisma.user.create({
