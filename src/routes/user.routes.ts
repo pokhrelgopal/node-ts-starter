@@ -12,8 +12,7 @@ import {
   getMe,
   verifyUser,
 } from "../controller/user.controller";
-import { authMiddleware } from "../middleware.ts/auth.middleware";
-import { permissionMiddleware } from "../middleware.ts/permission.middleware";
+import { authMiddleware, permissionMiddleware } from "../middleware.ts";
 
 const router = express.Router();
 

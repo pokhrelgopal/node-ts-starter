@@ -3,8 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import routes from "./routes";
-import { loggerMiddleware } from "./middleware.ts/logger.middleware";
 import { frontendUrl } from "./config";
+import { loggerMiddleware } from "./middleware.ts";
 
 const app = express();
 
