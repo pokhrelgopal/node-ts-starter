@@ -19,7 +19,7 @@
  */
 
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { errorResponse } from "../utils/response";
 import * as userService from "../services/user.service";
 
@@ -57,7 +57,7 @@ export const permissionMiddleware = async (
       );
       return;
     }
-    (req as any).user = user;
+    (req as JwtPayload).user = user;
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

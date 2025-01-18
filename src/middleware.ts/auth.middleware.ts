@@ -13,9 +13,10 @@
  *
  */
 
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { errorResponse } from "../utils/response";
+import { jwtSecret } from "../config";
 
 export const authMiddleware = (
   req: Request,
@@ -27,8 +28,8 @@ export const authMiddleware = (
     if (!token) {
       return errorResponse(res, "No token provided", null, 401);
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    (req as any).user = decoded;
+    const decoded = jwt.verify(token, jwtSecret as string);
+    (req as JwtPayload).user = decoded;
     next();
   } catch (error) {
     return errorResponse(res, "Invalid or expired token", null, 401);

@@ -1,7 +1,8 @@
 import { Response } from "express";
+import { ZodError } from "zod";
 
 type SuccessData = Record<string, unknown> | null;
-type ErrorDetails = Record<string, unknown> | string | null;
+type ErrorDetails = Record<string, string[]> | string | null;
 
 function successResponse(
   res: Response,
@@ -28,4 +29,26 @@ function errorResponse(
   });
 }
 
-export { successResponse, errorResponse };
+function zodErrorResponse(
+  res: Response,
+  error: ZodError<any>,
+  message: string = "Validation error",
+  statusCode: number = 400
+) {
+  const errorDetails: ErrorDetails = {};
+  error.errors.forEach((zodIssue) => {
+    const path = zodIssue.path.join(".");
+    if (!errorDetails[path]) {
+      errorDetails[path] = [];
+    }
+    errorDetails[path].push(zodIssue.message);
+  });
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+    error: errorDetails,
+  });
+}
+
+export { successResponse, errorResponse, zodErrorResponse };

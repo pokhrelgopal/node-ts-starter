@@ -1,33 +1,39 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
-import { UserRegister, UserLogin } from "../types/user";
 import * as userService from "../services/user.service";
-import { errorResponse, successResponse } from "../utils/response";
+import {
+  errorResponse,
+  successResponse,
+  zodErrorResponse,
+} from "../utils/response";
 import { getHashedPassword, validatePassword } from "../utils/password";
 import { frontendUrl, jwtSecret, nodeEnv } from "../config";
 import { sendResetPasswordLink } from "../utils/mailer";
+import {
+  registerSchema,
+  loginSchema,
+  userUpdateSchema,
+} from "../schema/user.schema";
+import { ZodError } from "zod";
 
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const data: UserRegister = req.body;
-  if (!data.email || !data.password || !data.fullName) {
-    return errorResponse(res, "Please provide all required fields.");
-  }
   try {
+    const data = registerSchema.parse(req.body);
     const exists = await userService.getUserByEmail(data.email);
-    if (exists) {
+    if (exists)
       return errorResponse(res, "User with this email already exists.");
-    }
     const user = await userService.register(data);
     return successResponse(res, "User registered successfully.", {
       id: user.id,
-      email: user.email,
-      fullName: user.fullName,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return zodErrorResponse(res, error);
+    }
     next(error);
   }
 };
@@ -37,10 +43,7 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
-  const data: UserLogin = req.body;
-  if (!data.email || !data.password) {
-    return errorResponse(res, "Please provide all required fields.");
-  }
+  const data = loginSchema.parse(req.body);
   try {
     const user = await userService.getUserByEmail(data.email);
     if (!user) {
@@ -63,7 +66,7 @@ export const login = async (
       secure: nodeEnv === "production",
       sameSite: "lax",
       path: "/",
-      expires: new Date(Date.now() + 604800000),
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     });
     return successResponse(res, "User logged in successfully.", {
       id: user.id,
@@ -71,6 +74,9 @@ export const login = async (
       fullName: user.fullName,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return zodErrorResponse(res, error);
+    }
     next(error);
   }
 };
@@ -227,8 +233,8 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const data = req.body;
-    const user = userService.getUserById(req.params.id);
+    const data = userUpdateSchema.parse(req.body);
+    const user = await userService.getUserById(req.params.id);
     if (!user) {
       return errorResponse(res, "User not found.", null, 404);
     }
@@ -237,6 +243,9 @@ export const updateUser = async (
       id: updated.id,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return zodErrorResponse(res, error);
+    }
     next(error);
   }
 };
@@ -258,13 +267,17 @@ export const deleteUser = async (
   }
 };
 
+interface CustomRequest extends Request {
+  user: { userId: string };
+}
+
 export const getMe = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const user = await userService.getUserById((req as any).user.userId);
+    const user = await userService.getUserById((req as JwtPayload).user.userId);
     if (!user) {
       return errorResponse(res, "User not found.", null, 404);
     }

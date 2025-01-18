@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
 import routes from "./routes";
 import { frontendUrl } from "./config";
-import { loggerMiddleware } from "./middleware.ts";
+import { loggerMiddleware, limiter } from "./middleware.ts";
 
 const app = express();
 
@@ -18,6 +17,7 @@ app.use(
   })
 );
 
+app.use("/api", limiter);
 app.use(loggerMiddleware);
 app.use("/api/users", routes.userRoutes);
 
