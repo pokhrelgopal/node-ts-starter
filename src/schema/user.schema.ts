@@ -21,3 +21,7 @@ export const userUpdateSchema = z.object({
   resetTokenExpires: z.date().nullable().optional(),
   role: z.enum(["USER", "ADMIN"]).optional(),
 });
+
+export type RegisterData = z.infer<typeof registerSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
+export type UserUpdateData = z.infer<typeof userUpdateSchema>;

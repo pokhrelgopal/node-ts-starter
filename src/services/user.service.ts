@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import prisma from "../db/prisma";
-import { UserRegister, UserUpdate } from "../types/user";
 import { otpGenerator } from "../utils/keys";
+import { RegisterData, UserUpdateData } from "../schema/user.schema";
 
-export const register = async (data: UserRegister) => {
+export const register = async (data: RegisterData) => {
   const hashedPassword = await bcrypt.hash(data.password, 10);
   const user = await prisma.user.create({
     data: {
@@ -71,7 +71,7 @@ export const getAllUsers = async () => {
   return users;
 };
 
-export const updateUser = async (id: string, data: UserUpdate) => {
+export const updateUser = async (id: string, data: UserUpdateData) => {
   const user = await prisma.user.update({
     where: {
       id,
