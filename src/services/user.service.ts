@@ -3,10 +3,11 @@ import prisma from "../db/prisma";
 import { otpGenerator } from "../utils/keys";
 import { RegisterData, UserUpdateData } from "../schema/user.schema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { getHashedPassword } from "../utils/password";
 
 export const register = async (data: RegisterData) => {
   try {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const hashedPassword = await getHashedPassword(data.password);
     const user = await prisma.user.create({
       data: {
         otp: otpGenerator(),
