@@ -1,6 +1,6 @@
 import express from "express";
 import * as uc from "../controller/user.controller";
-import { authMiddleware, permissionMiddleware } from "../middleware.ts";
+import { authMiddleware, permissionMiddleware } from "../middleware";
 
 const router = express.Router();
 
